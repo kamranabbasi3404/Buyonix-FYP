@@ -85,6 +85,90 @@ router.get("/seller/:sellerId", async (req, res) => {
     }
 });
 
+// Get AI-powered personalized recommendations for a user
+// Uses Collaborative Filtering (Matrix Factorization)
+// NOTE: This route MUST be before /:id route to avoid being caught by the wildcard
+router.get("/recommendations/:userId", async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const numRecommendations = parseInt(req.query.num) || 5;
+
+        // Initialize CF model on first call
+        if (!cfRecommender.modelReady) {
+            await cfRecommender.initialize();
+        }
+
+        // Get recommendations from CF model
+        if (!cfRecommender.modelReady) {
+            // CF model not available, return popular products as fallback
+            const popularProducts = await Product.find({ status: 'active' })
+                .populate('sellerId', 'storeName businessName')
+                .sort({ rating: -1 })
+                .limit(numRecommendations);
+
+            return res.json({
+                success: true,
+                recommendations: popularProducts,
+                source: 'popular_products_fallback'
+            });
+        }
+
+        // Get CF recommendations
+        const cfRecs = await cfRecommender.recommendForUser(userId, numRecommendations);
+
+        // Fetch actual product details from database
+        // CF model returns product_id numbers, convert to MongoDB ObjectId pattern
+        const recommendations = [];
+
+        for (const rec of cfRecs) {
+            // Find product by ID
+            const product = await Product.findById(rec.productId)
+                .populate('sellerId', 'storeName businessName');
+
+            if (product) {
+                recommendations.push({
+                    ...product.toObject(),
+                    predictedRating: rec.predictedRating,
+                    reason: 'Personalized recommendation based on user behavior'
+                });
+            }
+        }
+
+        // FALLBACK: If CF model returned empty (new user / no history), show popular products
+        if (recommendations.length === 0) {
+            const popularProducts = await Product.find({ status: 'active' })
+                .populate('sellerId', 'storeName businessName')
+                .sort({ rating: -1, reviewCount: -1 })
+                .limit(numRecommendations);
+
+            return res.json({
+                success: true,
+                count: popularProducts.length,
+                recommendations: popularProducts.map(p => ({
+                    ...p.toObject(),
+                    reason: 'Trending product - try it out!'
+                })),
+                source: 'popular_products_fallback'
+            });
+        }
+
+        res.json({
+            success: true,
+            count: recommendations.length,
+            recommendations,
+            source: 'collaborative_filtering_ai'
+        });
+
+    } catch (error) {
+        console.error("Get recommendations error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Error getting recommendations",
+            error: error.message
+        });
+    }
+});
+
 // Get single product by ID
 router.get("/:id", async (req, res) => {
     try {
@@ -290,71 +374,6 @@ router.delete("/:id", async (req, res) => {
         res.status(500).json({
             success: false,
             message: "Error deleting product"
-        });
-    }
-});
-
-// Get AI-powered personalized recommendations for a user
-// Uses Collaborative Filtering (Matrix Factorization)
-router.get("/recommendations/:userId", async (req, res) => {
-    try {
-        const { userId } = req.params;
-        const numRecommendations = parseInt(req.query.num) || 5;
-
-        // Initialize CF model on first call
-        if (!cfRecommender.modelReady) {
-            await cfRecommender.initialize();
-        }
-
-        // Get recommendations from CF model
-        if (!cfRecommender.modelReady) {
-            // CF model not available, return popular products as fallback
-            const popularProducts = await Product.find({ status: 'active' })
-                .populate('sellerId', 'storeName businessName')
-                .sort({ rating: -1 })
-                .limit(numRecommendations);
-
-            return res.json({
-                success: true,
-                recommendations: popularProducts,
-                source: 'popular_products_fallback'
-            });
-        }
-
-        // Get CF recommendations
-        const cfRecs = await cfRecommender.recommendForUser(userId, numRecommendations);
-
-        // Fetch actual product details from database
-        // CF model returns product_id numbers, convert to MongoDB ObjectId pattern
-        const recommendations = [];
-
-        for (const rec of cfRecs) {
-            // Find product by ID
-            const product = await Product.findById(rec.productId)
-                .populate('sellerId', 'storeName businessName');
-
-            if (product) {
-                recommendations.push({
-                    ...product.toObject(),
-                    predictedRating: rec.predictedRating,
-                    reason: 'Personalized recommendation based on user behavior'
-                });
-            }
-        }
-
-        res.json({
-            success: true,
-            count: recommendations.length,
-            recommendations,
-            source: 'collaborative_filtering_ai'
-        });
-
-    } catch (error) {
-        console.error("Get recommendations error:", error);
-        res.status(500).json({
-            success: false,
-            message: "Error getting recommendations",
-            error: error.message
         });
     }
 });

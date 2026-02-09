@@ -163,6 +163,18 @@ const BuyNow: React.FC = () => {
       return;
     }
 
+    // ✅ Card payment validation - must use Stripe payment form, not Place Order button
+    if (formData.paymentMethod === 'card') {
+      alert('⚠️ For card payments, please use the "Pay Now" button in the Card Payment section above.');
+      return;
+    }
+
+    // ✅ EasyPaisa/JazzCash validation - transaction ID required
+    if ((formData.paymentMethod === 'easypaisa' || formData.paymentMethod === 'jazzcash') && !paymentDetails.transactionId.trim()) {
+      alert(`⚠️ Please enter your ${formData.paymentMethod === 'easypaisa' ? 'EasyPaisa' : 'JazzCash'} Transaction ID to proceed.`);
+      return;
+    }
+
     try {
       const orderData = {
         customerInfo: {
@@ -175,7 +187,7 @@ const BuyNow: React.FC = () => {
           postalCode: formData.postalCode,
         },
         paymentMethod: formData.paymentMethod,
-        paymentDetails: formData.paymentMethod === 'bank' ? paymentDetails : null,
+        paymentDetails: (formData.paymentMethod === 'easypaisa' || formData.paymentMethod === 'jazzcash') ? paymentDetails : null,
         items: cartItems,
         subtotal: subtotal,
         shipping: shipping,
@@ -334,8 +346,8 @@ const BuyNow: React.FC = () => {
 
               <div className="flex gap-4 mb-6">
                 {[
-                  { id: 'mobile', label: 'Mobile Wallet', icon: '📱' },
-                  { id: 'bank', label: 'Bank', icon: '🏦' },
+                  { id: 'easypaisa', label: 'EasyPaisa', icon: '📱' },
+                  { id: 'jazzcash', label: 'JazzCash', icon: '📲' },
                   { id: 'card', label: 'Card', icon: '💳' },
                   { id: 'cod', label: 'COD', icon: '📦' },
                 ].map((method) => (
@@ -361,21 +373,13 @@ const BuyNow: React.FC = () => {
                 ))}
               </div>
 
-              {formData.paymentMethod === 'bank' && (
+              {(formData.paymentMethod === 'easypaisa' || formData.paymentMethod === 'jazzcash') && (
                 <div className="space-y-4 border-t border-gray-200 pt-6">
-                  <h3 className="font-bold text-gray-900 text-lg">Buyonix Bank Details</h3>
+                  <h3 className="font-bold text-gray-900 text-lg">
+                    {formData.paymentMethod === 'easypaisa' ? '📱 EasyPaisa' : '📲 JazzCash'} Payment Details
+                  </h3>
 
                   <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Bank Name</label>
-                      <input
-                        type="text"
-                        value="HBL Bank Limited (HBL)"
-                        disabled
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
-                      />
-                    </div>
-
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Account Title</label>
                       <input
@@ -387,23 +391,34 @@ const BuyNow: React.FC = () => {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Account Number</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        {formData.paymentMethod === 'easypaisa' ? 'EasyPaisa' : 'JazzCash'} Number
+                      </label>
                       <input
                         type="text"
-                        value="1234-5678-9012-3456"
+                        value={formData.paymentMethod === 'easypaisa' ? '0312-3456789' : '0300-1234567'}
                         disabled
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
                       />
                     </div>
 
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-sm text-yellow-800">
+                      <p className="font-medium">📌 Instructions:</p>
+                      <ol className="list-decimal ml-4 mt-1 space-y-1">
+                        <li>Open your {formData.paymentMethod === 'easypaisa' ? 'EasyPaisa' : 'JazzCash'} app</li>
+                        <li>Send Rs. {(subtotal + shipping).toFixed(0)} to the number above</li>
+                        <li>Copy the Transaction ID and paste below</li>
+                      </ol>
+                    </div>
+
                     <div className="border-t border-gray-200 pt-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Transaction ID / RN</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Transaction ID (TRX ID)</label>
                       <input
                         type="text"
                         name="transactionId"
                         value={paymentDetails.transactionId}
                         onChange={handlePaymentChange}
-                        placeholder="Enter transaction ID from your bank"
+                        placeholder="Enter your transaction ID"
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
                       />
                     </div>
@@ -484,12 +499,18 @@ const BuyNow: React.FC = () => {
                 <p className="font-medium">By placing your order, you agree to our terms and conditions</p>
               </div>
 
-              <button
-                onClick={handlePlaceOrder}
-                className="w-full bg-teal-600 text-white font-bold py-3 rounded-lg hover:bg-teal-700 transition-colors"
-              >
-                Place Order
-              </button>
+              {formData.paymentMethod === 'card' ? (
+                <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-3 text-sm text-yellow-800 text-center">
+                  <p className="font-medium">💳 Please complete card payment using the form above</p>
+                </div>
+              ) : (
+                <button
+                  onClick={handlePlaceOrder}
+                  className="w-full bg-teal-600 text-white font-bold py-3 rounded-lg hover:bg-teal-700 transition-colors"
+                >
+                  Place Order
+                </button>
+              )}
             </div>
           </div>
         </div>
