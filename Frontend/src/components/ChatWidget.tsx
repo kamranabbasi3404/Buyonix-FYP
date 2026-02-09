@@ -126,7 +126,7 @@ const ChatWidget = ({ sellerId, sellerName, userId, userName, onClose }: ChatWid
         setNewMessage('');
     };
 
-    const handleKeyPress = (e: React.KeyboardEvent) => {
+    const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             handleSend();
@@ -166,8 +166,8 @@ const ChatWidget = ({ sellerId, sellerName, userId, userName, onClose }: ChatWid
                         >
                             <div
                                 className={`max-w-[75%] px-3 py-2 rounded-xl text-sm ${msg.senderType === 'user'
-                                        ? 'bg-teal-600 text-white rounded-br-sm'
-                                        : 'bg-white text-gray-800 border border-gray-200 rounded-bl-sm'
+                                    ? 'bg-teal-600 text-white rounded-br-sm'
+                                    : 'bg-white text-gray-800 border border-gray-200 rounded-bl-sm'
                                     }`}
                             >
                                 <p>{msg.message}</p>
@@ -188,7 +188,7 @@ const ChatWidget = ({ sellerId, sellerName, userId, userName, onClose }: ChatWid
                         type="text"
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
-                        onKeyPress={handleKeyPress}
+                        onKeyDown={handleKeyDown}
                         placeholder="Type a message..."
                         className="flex-1 px-3 py-2 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                     />
