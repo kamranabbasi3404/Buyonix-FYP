@@ -5,6 +5,18 @@
     <link rel="icon" type="image/svg+xml" href="./src/assets/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Buyonix | Smart Assistance </title>
+    <style>
+      /* Hide Stripe floating badge globally */
+      body > iframe[title*="Stripe"],
+      body > div[style*="position: fixed"][style*="2147483647"],
+      [class*="__PrivateStripeElement"][aria-hidden="true"],
+      iframe[name^="__privateStripeFrame"] {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>

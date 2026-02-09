@@ -28,7 +28,7 @@ const Chatbot = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
   // Handle bot responses based on user queries
   const getBotResponse = (userMessage: string): string => {
     const lowerMessage = userMessage.toLowerCase();
-    
+
     if (lowerMessage.includes('track') || lowerMessage.includes('order')) {
       return "To track your order's shipment, go to the Orders page in your account and click on the **Track** button next to the order.";
     } else if (lowerMessage.includes('return') || lowerMessage.includes('refund')) {
@@ -76,7 +76,7 @@ const Chatbot = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
     }, 500);
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
@@ -186,14 +186,13 @@ const Chatbot = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
                 </div>
               )}
               <div
-                className={`max-w-[75%] rounded-lg px-4 py-2 ${
-                  message.sender === 'user'
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-200 text-gray-800'
-                }`}
+                className={`max-w-[75%] rounded-lg px-4 py-2 ${message.sender === 'user'
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-200 text-gray-800'
+                  }`}
               >
                 <p className="text-sm whitespace-pre-wrap">{formatMessage(message.text)}</p>
-                
+
                 {/* Feedback buttons for bot messages */}
                 {message.sender === 'bot' && !helpfulResponse[message.id] && (
                   <div className="mt-3 pt-3 border-t border-gray-300">
@@ -214,7 +213,7 @@ const Chatbot = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
                     </div>
                   </div>
                 )}
-                
+
                 {helpfulResponse[message.id] && (
                   <div className="mt-2 pt-2 border-t border-gray-300">
                     <p className="text-xs text-green-600">
@@ -236,7 +235,7 @@ const Chatbot = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
             type="text"
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
-            onKeyPress={handleKeyPress}
+            onKeyDown={handleKeyDown}
             placeholder="Type your message here"
             className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
           />
