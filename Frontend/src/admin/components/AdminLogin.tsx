@@ -13,7 +13,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
 
   // Valid admin credentials
   const validUsernames = ['Faisal.221786', 'Hadi.221780', 'Kamran.221800'];
-  const validPassword = 'buyonix.au.ed.pk';
+  const validPassword = 'buyonix.au.edu.pk';
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
