@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CartContext } from '../context/CartContextType';
-import { FaTrash, FaArrowLeft, FaHeart, FaStar, FaComments } from 'react-icons/fa';
+import { FaTrash, FaArrowLeft, FaHeart, FaStar, FaRegStar, FaComments } from 'react-icons/fa';
 import ChatWidget from '../components/ChatWidget';
 
 interface Product {
@@ -63,6 +63,13 @@ const Checkout: React.FC = () => {
   const [userName, setUserName] = useState('');
   const [productRating, setProductRating] = useState(0);
   const [productReviewCount, setProductReviewCount] = useState(0);
+
+  // Review modal states
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [userRating, setUserRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [ratingComment, setRatingComment] = useState('');
+  const [submittingRating, setSubmittingRating] = useState(false);
 
   // Get the first item in cart (main product display)
   const mainProduct = cartContext?.cartItems?.[0];
@@ -437,6 +444,77 @@ const Checkout: React.FC = () => {
     }
   };
 
+  // Submit Review Handler
+  const handleSubmitReview = async () => {
+    if (!mainProduct || userRating === 0) return;
+
+    setSubmittingRating(true);
+
+    const storedUser = localStorage.getItem('userInfo');
+    let reviewUserId = '';
+    let reviewUserName = 'Anonymous';
+
+    if (storedUser) {
+      try {
+        const user = JSON.parse(storedUser);
+        reviewUserId = user._id || user.id || '';
+        reviewUserName = user.name || user.email?.split('@')[0] || 'Anonymous';
+      } catch (e) {
+        console.error('Error parsing user:', e);
+      }
+    }
+
+    if (!reviewUserId) {
+      alert('Please login to submit a review');
+      setSubmittingRating(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:5000/product/${mainProduct._id}/reviews`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          userId: reviewUserId,
+          rating: userRating,
+          comment: ratingComment,
+          userName: reviewUserName,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setProductRating(data.newRating);
+        setProductReviewCount(data.reviewCount);
+
+        const newReview: Review = {
+          _id: data.review._id,
+          productId: mainProduct._id,
+          userId: reviewUserId,
+          rating: userRating,
+          comment: ratingComment,
+          userName: reviewUserName,
+          createdAt: new Date().toISOString(),
+        };
+        setReviews(prev => [newReview, ...prev]);
+
+        alert('Review submitted successfully!');
+      } else {
+        alert(data.message || 'Could not submit review');
+      }
+    } catch (err) {
+      console.error('Error submitting review:', err);
+      alert('Error submitting review. Please try again.');
+    } finally {
+      setSubmittingRating(false);
+      setShowRatingModal(false);
+      setUserRating(0);
+      setRatingComment('');
+    }
+  };
+
   // Redirect to home if cart is empty
   if (cartItems.length === 0) {
     return (
@@ -560,8 +638,8 @@ const Checkout: React.FC = () => {
                         <button
                           onClick={() => setSelectedColor(null)}
                           className={`w-10 h-10 rounded-full border-2 transition-all flex items-center justify-center text-sm font-bold ${selectedColor === null
-                              ? 'border-teal-600 ring-2 ring-teal-200 scale-110 bg-gray-100'
-                              : 'border-gray-300 hover:border-gray-400 bg-gray-50'
+                            ? 'border-teal-600 ring-2 ring-teal-200 scale-110 bg-gray-100'
+                            : 'border-gray-300 hover:border-gray-400 bg-gray-50'
                             }`}
                           title="Original"
                         >
@@ -708,6 +786,12 @@ const Checkout: React.FC = () => {
               <h2 className="text-xl font-bold text-gray-900">
                 Customer Reviews ({productReviewCount})
               </h2>
+              <button
+                onClick={() => setShowRatingModal(true)}
+                className="px-4 py-2 bg-teal-600 text-white rounded-lg font-medium hover:bg-teal-700 transition-colors flex items-center gap-2 text-sm"
+              >
+                <FaStar /> Write a Review
+              </button>
             </div>
 
             {loadingReviews ? (
@@ -1024,6 +1108,75 @@ const Checkout: React.FC = () => {
           onClose={() => setShowChat(false)}
         />
       )}
+
+      {/* Rating Modal */}
+      {showRatingModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4"
+          onClick={() => setShowRatingModal(false)}
+        >
+          <div
+            className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">Rate This Product</h3>
+
+            {/* Stars */}
+            <div className="flex justify-center gap-2 mb-6">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  onMouseEnter={() => setHoverRating(star)}
+                  onMouseLeave={() => setHoverRating(0)}
+                  onClick={() => setUserRating(star)}
+                  className="text-4xl transition-transform hover:scale-110"
+                >
+                  {star <= (hoverRating || userRating) ? (
+                    <FaStar className="text-yellow-400" />
+                  ) : (
+                    <FaRegStar className="text-gray-300" />
+                  )}
+                </button>
+              ))}
+            </div>
+
+            <p className="text-center text-gray-600 mb-4">
+              {userRating === 0 && 'Click to rate'}
+              {userRating === 1 && 'Poor'}
+              {userRating === 2 && 'Fair'}
+              {userRating === 3 && 'Good'}
+              {userRating === 4 && 'Very Good'}
+              {userRating === 5 && 'Excellent!'}
+            </p>
+
+            {/* Comment */}
+            <textarea
+              value={ratingComment}
+              onChange={(e) => setRatingComment(e.target.value)}
+              placeholder="Write a review (optional)..."
+              className="w-full border border-gray-300 rounded-lg p-3 mb-4 resize-none h-24 focus:ring-2 focus:ring-teal-500 focus:outline-none"
+            />
+
+            {/* Buttons */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowRatingModal(false)}
+                className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSubmitReview}
+                disabled={userRating === 0 || submittingRating}
+                className="flex-1 py-3 bg-teal-600 text-white rounded-lg font-medium hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {submittingRating ? 'Submitting...' : 'Submit Review'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

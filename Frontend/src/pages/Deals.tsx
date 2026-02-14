@@ -49,7 +49,7 @@ const Deals: React.FC = () => {
     const timer = setInterval(() => {
       setCountdown(prev => {
         let { hours, minutes, seconds } = prev;
-        
+
         if (seconds > 0) {
           seconds--;
         } else if (minutes > 0) {
@@ -63,7 +63,7 @@ const Deals: React.FC = () => {
           // Reset when it reaches 0
           return { hours: 12, minutes: 34, seconds: 55 };
         }
-        
+
         return { hours, minutes, seconds };
       });
     }, 1000);
@@ -84,10 +84,10 @@ const Deals: React.FC = () => {
         `http://localhost:5000/product?page=${page}&limit=20`,
         { credentials: 'include' }
       );
-      
+
       if (!response.ok) throw new Error('Failed to fetch products');
       const data = await response.json();
-      
+
       if (data.success) {
         if (page === 1) {
           setProducts(Array.isArray(data.products) ? data.products : []);
@@ -165,7 +165,7 @@ const Deals: React.FC = () => {
         break;
       case 'bestsellers':
         // Products with high rating and reviews
-        filtered = filtered.filter(p => 
+        filtered = filtered.filter(p =>
           (p.rating && p.rating >= 4.5) || (p.reviewCount && p.reviewCount >= 100)
         );
         break;
@@ -177,7 +177,7 @@ const Deals: React.FC = () => {
 
     // Filter by category
     if (activeCategory !== 'all') {
-      filtered = filtered.filter(p => 
+      filtered = filtered.filter(p =>
         p.category && p.category.toLowerCase() === activeCategory.toLowerCase()
       );
     }
@@ -194,11 +194,11 @@ const Deals: React.FC = () => {
 
   // Product card component
   const ProductCard = ({ product }: { product: Product }) => {
-    const imageUrl = product.images && product.images.length > 0 
-      ? (typeof product.images[0] === 'string' ? product.images[0] : product.images[0].url) 
+    const imageUrl = product.images && product.images.length > 0
+      ? (typeof product.images[0] === 'string' ? product.images[0] : product.images[0].url)
       : 'https://via.placeholder.com/300';
-    const discountPercent = product.discount && product.discount > 0 
-      ? `-${product.discount}%` 
+    const discountPercent = product.discount && product.discount > 0
+      ? `-${product.discount}%`
       : null;
 
     const handleAddToCart = () => {
@@ -221,22 +221,24 @@ const Deals: React.FC = () => {
               {discountPercent}
             </div>
           )}
-          <img 
-            src={imageUrl} 
+          <img
+            src={imageUrl}
             alt={product.name}
             className="w-full h-full object-cover"
           />
         </div>
         <div className="p-4">
           <h3 className="font-semibold text-gray-800 mb-2 line-clamp-2 min-h-[3rem]">{product.name}</h3>
-          {product.rating && (
-            <div className="flex items-center mb-2">
-              <span className="text-yellow-400">★</span>
-              <span className="text-sm text-gray-600 ml-1">
-                {product.rating.toFixed(1)} ({product.reviewCount || 0})
-              </span>
-            </div>
-          )}
+          <div className="flex items-center mb-2">
+            <span className="text-yellow-400">
+              {[...Array(5)].map((_, i) => (
+                <span key={i}>{i < Math.floor(product.rating || 0) ? '★' : '☆'}</span>
+              ))}
+            </span>
+            <span className="text-sm text-gray-600 ml-1">
+              ({product.reviewCount || 0})
+            </span>
+          </div>
           <div className="flex items-center justify-between mb-3">
             <div>
               <span className="text-lg font-bold text-gray-900">${product.price?.toFixed(2) || 'N/A'}</span>
@@ -313,22 +315,20 @@ const Deals: React.FC = () => {
           <div className="flex items-center gap-8 overflow-x-auto scrollbar-hide">
             <button
               onClick={() => setActiveDealType('flash')}
-              className={`flex items-center gap-2 py-4 px-2 border-b-2 transition-colors whitespace-nowrap ${
-                activeDealType === 'flash'
-                  ? 'border-coral-500 text-coral-600 font-semibold'
-                  : 'border-transparent text-gray-600 hover:text-coral-600'
-              }`}
+              className={`flex items-center gap-2 py-4 px-2 border-b-2 transition-colors whitespace-nowrap ${activeDealType === 'flash'
+                ? 'border-coral-500 text-coral-600 font-semibold'
+                : 'border-transparent text-gray-600 hover:text-coral-600'
+                }`}
             >
               <span className="text-xl">⚡</span>
               <span>Flash Deals</span>
             </button>
             <button
               onClick={() => setActiveDealType('clearance')}
-              className={`flex items-center gap-2 py-4 px-2 border-b-2 transition-colors whitespace-nowrap ${
-                activeDealType === 'clearance'
-                  ? 'border-coral-500 text-coral-600 font-semibold'
-                  : 'border-transparent text-gray-600 hover:text-coral-600'
-              }`}
+              className={`flex items-center gap-2 py-4 px-2 border-b-2 transition-colors whitespace-nowrap ${activeDealType === 'clearance'
+                ? 'border-coral-500 text-coral-600 font-semibold'
+                : 'border-transparent text-gray-600 hover:text-coral-600'
+                }`}
             >
               <span className="text-xl">🔄</span>
               <span>Clearance</span>
@@ -336,11 +336,10 @@ const Deals: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveDealType('bestsellers')}
-              className={`flex items-center gap-2 py-4 px-2 border-b-2 transition-colors whitespace-nowrap ${
-                activeDealType === 'bestsellers'
-                  ? 'border-coral-500 text-coral-600 font-semibold'
-                  : 'border-transparent text-gray-600 hover:text-coral-600'
-              }`}
+              className={`flex items-center gap-2 py-4 px-2 border-b-2 transition-colors whitespace-nowrap ${activeDealType === 'bestsellers'
+                ? 'border-coral-500 text-coral-600 font-semibold'
+                : 'border-transparent text-gray-600 hover:text-coral-600'
+                }`}
             >
               <span className="text-xl">⭐</span>
               <span>Best Sellers</span>
@@ -348,11 +347,10 @@ const Deals: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveDealType('daily')}
-              className={`flex items-center gap-2 py-4 px-2 border-b-2 transition-colors whitespace-nowrap ${
-                activeDealType === 'daily'
-                  ? 'border-coral-500 text-coral-600 font-semibold'
-                  : 'border-transparent text-gray-600 hover:text-coral-600'
-              }`}
+              className={`flex items-center gap-2 py-4 px-2 border-b-2 transition-colors whitespace-nowrap ${activeDealType === 'daily'
+                ? 'border-coral-500 text-coral-600 font-semibold'
+                : 'border-transparent text-gray-600 hover:text-coral-600'
+                }`}
             >
               <span className="text-xl">📅</span>
               <span>Daily Deals</span>
@@ -393,18 +391,17 @@ const Deals: React.FC = () => {
       {/* Deals by Category Section */}
       <div className="max-w-7xl mx-auto px-6 py-8">
         <h2 className="text-2xl font-bold text-gray-800 mb-6">Deals by Category</h2>
-        
+
         {/* Category Filter */}
         <div className="flex items-center gap-4 mb-6 overflow-x-auto scrollbar-hide pb-2">
           {(['all', 'electronics', 'fashion', 'footwear', 'accessories'] as CategoryFilter[]).map((cat) => (
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`px-6 py-2 rounded-full font-medium transition-colors whitespace-nowrap ${
-                activeCategory === cat
-                  ? 'bg-coral-500 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              }`}
+              className={`px-6 py-2 rounded-full font-medium transition-colors whitespace-nowrap ${activeCategory === cat
+                ? 'bg-coral-500 text-white'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
             >
               {cat === 'all' ? 'All Deals' : cat.charAt(0).toUpperCase() + cat.slice(1)}
             </button>
@@ -458,7 +455,7 @@ const Deals: React.FC = () => {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
               required
-              className="flex-1 px-4 py-3 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-white"
+              className="flex-1 px-4 py-3 rounded-lg bg-white border border-gray-300 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white"
             />
             <button
               type="submit"

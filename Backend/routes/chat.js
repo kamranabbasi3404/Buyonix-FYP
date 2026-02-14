@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const { Message, Conversation } = require('../models/chat');
 const User = require('../models/user');
-const Seller = require('../models/Seller');
+const Seller = require('../models/seller');
 const { sendChatNotificationEmail } = require('../utils/emailService');
 
 /**

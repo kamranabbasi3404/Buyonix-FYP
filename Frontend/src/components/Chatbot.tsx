@@ -29,6 +29,22 @@ const Chatbot = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
   const [inputMessage, setInputMessage] = useState('');
   const [helpfulResponse, setHelpfulResponse] = useState<{ [key: string]: 'yes' | 'no' | null }>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [language, setLanguage] = useState<'en' | 'ur'>('en');
+
+  // Reset welcome message when language changes
+  useEffect(() => {
+    setMessages([
+      {
+        id: '1',
+        text: language === 'ur'
+          ? '👋 Assalam o Alaikum! Main Buyonix Assistant hoon. Mujh se products ki price, availability ya koi bhi sawal pucho!'
+          : '👋 Hello! I\'m the Buyonix Assistant. Ask me about product prices, availability, or anything else!',
+        sender: 'bot',
+        timestamp: new Date(),
+      },
+    ]);
+    setHelpfulResponse({});
+  }, [language]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when new messages arrive
@@ -40,7 +56,7 @@ const Chatbot = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
   const searchProducts = async (query: string): Promise<Product[]> => {
     try {
       // Fetch all products from backend and filter client-side
-      const response = await fetch(`http://localhost:5000/product`);
+      const response = await fetch(`http://localhost:5000/product?limit=100`);
       if (!response.ok) return [];
       const data = await response.json();
 
@@ -98,40 +114,6 @@ const Chatbot = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
     return response;
   };
 
-  // Detect if user is writing in Roman Urdu
-  const isRomanUrdu = (message: string): boolean => {
-    const urduKeywords = [
-      // Common Urdu words
-      'kya', 'kaise', 'kahan', 'kyun', 'kitne', 'kitna', 'kab', 'kon', 'kaun',
-      'hai', 'hain', 'ho', 'hoon', 'tha', 'thi', 'the', 'hoga', 'hogi',
-      'mujhe', 'mera', 'meri', 'mere', 'aap', 'aapka', 'apna', 'apni',
-      'yeh', 'woh', 'is', 'us', 'isko', 'usko', 'ye', 'wo',
-      'karo', 'karna', 'karein', 'bata', 'batao', 'batana', 'dikhao', 'dikha',
-      'chahiye', 'chahte', 'chahti', 'chaiye',
-      'acha', 'theek', 'shukriya', 'jazak', 'please', 'plz',
-      'mil', 'milega', 'milta', 'milti', 'dedo', 'dena', 'lena', 'lelo',
-      'salam', 'walaikum', 'aoa', 'assalam',
-      'nahi', 'nhi', 'na', 'mat', 'sirf', 'bas',
-      'aur', 'ya', 'phir', 'toh', 'lekin', 'magar',
-      'wala', 'wali', 'wale', 'ke', 'ki', 'ka', 'ko', 'se', 'pe', 'mein',
-      'abhi', 'pehle', 'baad', 'jaldi', 'dhundo', 'dekho', 'samjhao',
-      'achha', 'bura', 'sasta', 'mehnga', 'behtreen',
-      'qeemat', 'daam', 'paisa', 'paise', 'rupay', 'rupees'
-    ];
-
-    const lower = message.toLowerCase();
-    const words = lower.split(/\s+/);
-    let urduWordCount = 0;
-
-    words.forEach(word => {
-      if (urduKeywords.some(uk => word.includes(uk) || uk.includes(word))) {
-        urduWordCount++;
-      }
-    });
-
-    // If more than 30% words are Urdu, consider it Roman Urdu
-    return urduWordCount / words.length > 0.3;
-  };
 
   // Check if user is asking about product price/availability
   const isProductQuery = (message: string): boolean => {
@@ -171,10 +153,10 @@ const Chatbot = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
     // Clean up extra spaces, punctuation and return
     return cleaned.replace(/[?!.,]/g, '').replace(/\s+/g, ' ').trim();
   };
-  // Handle bot responses - Bilingual: Responds in user's language
+  // Handle bot responses - Bilingual: Responds in user's selected language
   const getBotResponse = (userMessage: string): string => {
     const lowerMessage = userMessage.toLowerCase();
-    const isUrdu = isRomanUrdu(userMessage);
+    const isUrdu = language === 'ur';
 
     // ===== VISUAL SEARCH =====
     if (lowerMessage.includes('visual search') || lowerMessage.includes('image search') || lowerMessage.includes('camera search') ||
@@ -406,7 +388,7 @@ const Chatbot = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
     // Check if it's a product query
     if (isProductQuery(userText)) {
       setIsLoading(true);
-      const isUrdu = isRomanUrdu(userText);
+      const isUrdu = language === 'ur';
 
       // Add loading message
       const loadingId = (Date.now() + 1).toString();
@@ -543,6 +525,29 @@ const Chatbot = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
         </div>
       </div>
 
+      {/* Language Toggle */}
+      <div className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-50 border-b border-blue-100">
+        <span className="text-xs text-gray-500 mr-1">🌐</span>
+        <button
+          onClick={() => setLanguage('en')}
+          className={`px-3 py-1 text-xs rounded-full font-medium transition-all ${language === 'en'
+            ? 'bg-blue-600 text-white shadow-sm'
+            : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+            }`}
+        >
+          English
+        </button>
+        <button
+          onClick={() => setLanguage('ur')}
+          className={`px-3 py-1 text-xs rounded-full font-medium transition-all ${language === 'ur'
+            ? 'bg-blue-600 text-white shadow-sm'
+            : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+            }`}
+        >
+          Roman Urdu
+        </button>
+      </div>
+
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
         <div className="space-y-4">
@@ -625,7 +630,7 @@ const Chatbot = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Type your message here"
+            placeholder={language === 'ur' ? 'Yahan apna sawal likho...' : 'Type your message here...'}
             className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
           />
           <button

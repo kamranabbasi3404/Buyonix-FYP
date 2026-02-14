@@ -72,10 +72,10 @@ const Categories: React.FC = () => {
         `http://localhost:5000/product?page=${page}&limit=20`,
         { credentials: 'include' }
       );
-      
+
       if (!response.ok) throw new Error('Failed to fetch products');
       const data = await response.json();
-      
+
       if (data.success) {
         if (page === 1) {
           setProducts(Array.isArray(data.products) ? data.products : []);
@@ -158,8 +158,8 @@ const Categories: React.FC = () => {
 
   // Product card component
   const ProductCard = ({ product }: { product: Product }) => {
-    const imageUrl = product.images && product.images.length > 0 
-      ? (typeof product.images[0] === 'string' ? product.images[0] : product.images[0].url) 
+    const imageUrl = product.images && product.images.length > 0
+      ? (typeof product.images[0] === 'string' ? product.images[0] : product.images[0].url)
       : 'https://via.placeholder.com/300';
     const discountPercent = product.discount && product.discount > 0 ? `-${product.discount}%` : null;
 
@@ -183,8 +183,8 @@ const Categories: React.FC = () => {
               Sale
             </div>
           )}
-          <img 
-            src={imageUrl} 
+          <img
+            src={imageUrl}
             alt={product.name}
             className="w-full h-full object-cover"
           />
@@ -196,14 +196,16 @@ const Categories: React.FC = () => {
           <Link to={`/product/${product._id}`} className="block hover:text-teal-600 transition-colors">
             <h3 className="font-semibold text-gray-800 mb-2 line-clamp-2 min-h-[3rem]">{product.name}</h3>
           </Link>
-          {product.rating && (
-            <div className="flex items-center mb-2">
-              <span className="text-yellow-400">★</span>
-              <span className="text-sm text-gray-600 ml-1">
-                {product.rating.toFixed(1)} ({product.reviewCount || 0})
-              </span>
-            </div>
-          )}
+          <div className="flex items-center mb-2">
+            <span className="text-yellow-400">
+              {[...Array(5)].map((_, i) => (
+                <span key={i}>{i < Math.floor(product.rating || 0) ? '★' : '☆'}</span>
+              ))}
+            </span>
+            <span className="text-sm text-gray-600 ml-1">
+              ({product.reviewCount || 0})
+            </span>
+          </div>
           <div className="flex items-center justify-between mb-3">
             <div>
               <span className="text-lg font-bold text-gray-900">${product.price?.toFixed(2) || 'N/A'}</span>
@@ -264,129 +266,129 @@ const Categories: React.FC = () => {
     <>
       <style>{scrollbarHideStyle}</style>
       <div className="min-h-screen bg-gray-50">
-      {/* Header Banner */}
-      <div className="bg-teal-600 text-white py-16 pt-24">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <h1 className="text-5xl font-bold mb-4">Shop by Category</h1>
-          <p className="text-xl text-teal-50">Find exactly what you're looking for in our organized collections</p>
+        {/* Header Banner */}
+        <div className="bg-teal-600 text-white py-16 pt-24">
+          <div className="max-w-7xl mx-auto px-6 text-center">
+            <h1 className="text-5xl font-bold mb-4">Shop by Category</h1>
+            <p className="text-xl text-teal-50">Find exactly what you're looking for in our organized collections</p>
+          </div>
         </div>
-      </div>
 
-      {/* Horizontal Category Navigation */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-          {categories.map((category) => (
-            <CategoryCard 
-              key={category} 
-              category={category} 
-              count={productsByCategory[category].length} 
-            />
-          ))}
-          {categories.length === 0 && (
-            <div className="text-center text-gray-600 py-8 w-full">No categories available</div>
-          )}
+        {/* Horizontal Category Navigation */}
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+            {categories.map((category) => (
+              <CategoryCard
+                key={category}
+                category={category}
+                count={productsByCategory[category].length}
+              />
+            ))}
+            {categories.length === 0 && (
+              <div className="text-center text-gray-600 py-8 w-full">No categories available</div>
+            )}
+          </div>
         </div>
-      </div>
 
-      {/* Product Sections by Category */}
-      <div className="max-w-7xl mx-auto px-6 pb-12">
-        {categories.map((category) => {
-          const categoryProducts = productsByCategory[category];
-          if (categoryProducts.length === 0) return null;
+        {/* Product Sections by Category */}
+        <div className="max-w-7xl mx-auto px-6 pb-12">
+          {categories.map((category) => {
+            const categoryProducts = productsByCategory[category];
+            if (categoryProducts.length === 0) return null;
 
-          return (
-            <div key={category} className="mb-12">
-              {/* Section Header */}
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
-                  <span className="text-3xl">{getCategoryIcon(category)}</span>
-                  <div>
-                    <h2 className="text-2xl font-bold text-gray-800 capitalize">{category}</h2>
-                    <p className="text-gray-600 mt-1">
-                      Explore our collection of {categoryProducts.length} {categoryProducts.length === 1 ? 'product' : 'products'}
-                    </p>
+            return (
+              <div key={category} className="mb-12">
+                {/* Section Header */}
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <span className="text-3xl">{getCategoryIcon(category)}</span>
+                    <div>
+                      <h2 className="text-2xl font-bold text-gray-800 capitalize">{category}</h2>
+                      <p className="text-gray-600 mt-1">
+                        Explore our collection of {categoryProducts.length} {categoryProducts.length === 1 ? 'product' : 'products'}
+                      </p>
+                    </div>
                   </div>
+                  <Link
+                    to={`/shop?category=${encodeURIComponent(category)}`}
+                    className="text-teal-600 hover:text-teal-700 font-medium flex items-center gap-1"
+                  >
+                    View All
+                    <span>→</span>
+                  </Link>
                 </div>
-                <Link
-                  to={`/shop?category=${encodeURIComponent(category)}`}
-                  className="text-teal-600 hover:text-teal-700 font-medium flex items-center gap-1"
-                >
-                  View All
-                  <span>→</span>
-                </Link>
-              </div>
 
-              {/* Product Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {categoryProducts.map((product) => (
-                  <ProductCard key={product._id} product={product} />
-                ))}
+                {/* Product Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                  {categoryProducts.map((product) => (
+                    <ProductCard key={product._id} product={product} />
+                  ))}
+                </div>
               </div>
+            );
+          })}
+
+          {categories.length === 0 && (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">📦</div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">No products available</h3>
+              <p className="text-gray-600">Products will appear here once they are added.</p>
             </div>
-          );
-        })}
+          )}
 
-        {categories.length === 0 && (
-          <div className="text-center py-12">
-            <div className="text-6xl mb-4">📦</div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No products available</h3>
-            <p className="text-gray-600">Products will appear here once they are added.</p>
+          {/* Infinite scroll trigger */}
+          <div
+            ref={observerTarget}
+            className="w-full py-8 flex justify-center mt-12"
+          >
+            {loadingMore && (
+              <div className="flex items-center gap-2">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-teal-500"></div>
+                <span className="text-gray-600">Loading more products...</span>
+              </div>
+            )}
           </div>
-        )}
 
-        {/* Infinite scroll trigger */}
-        <div
-          ref={observerTarget}
-          className="w-full py-8 flex justify-center mt-12"
-        >
-          {loadingMore && (
-            <div className="flex items-center gap-2">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-teal-500"></div>
-              <span className="text-gray-600">Loading more products...</span>
+          {/* End of list message */}
+          {pagination && !pagination.hasNextPage && products.length > 0 && (
+            <div className="w-full text-center py-8 text-gray-500">
+              You've reached the end of all categories
             </div>
           )}
         </div>
 
-        {/* End of list message */}
-        {pagination && !pagination.hasNextPage && products.length > 0 && (
-          <div className="w-full text-center py-8 text-gray-500">
-            You've reached the end of all categories
-          </div>
-        )}
-      </div>
+        {/* Why Shop by Category Section */}
+        <div className="bg-gradient-to-br from-blue-50 to-teal-50 py-16">
+          <div className="max-w-7xl mx-auto px-6">
+            <h2 className="text-3xl font-bold text-gray-800 text-center mb-4">Why Shop by Category?</h2>
+            <p className="text-gray-600 text-center mb-12 max-w-2xl mx-auto">
+              Find exactly what you need faster with our organized and easy-to-navigate collections.
+            </p>
 
-      {/* Why Shop by Category Section */}
-      <div className="bg-gradient-to-br from-blue-50 to-teal-50 py-16">
-        <div className="max-w-7xl mx-auto px-6">
-          <h2 className="text-3xl font-bold text-gray-800 text-center mb-4">Why Shop by Category?</h2>
-          <p className="text-gray-600 text-center mb-12 max-w-2xl mx-auto">
-            Find exactly what you need faster with our organized and easy-to-navigate collections.
-          </p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Benefit Card 1 */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
-              <div className="text-4xl mb-4">🧭</div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">Easy Navigation</h3>
-              <p className="text-gray-600">Quickly find products in your preferred category.</p>
-            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Benefit Card 1 */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
+                <div className="text-4xl mb-4">🧭</div>
+                <h3 className="text-xl font-semibold text-gray-800 mb-2">Easy Navigation</h3>
+                <p className="text-gray-600">Quickly find products in your preferred category.</p>
+              </div>
 
-            {/* Benefit Card 2 */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
-              <div className="text-4xl mb-4">✨</div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">Curated Collections</h3>
-              <p className="text-gray-600">Hand-picked products within each category.</p>
-            </div>
+              {/* Benefit Card 2 */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
+                <div className="text-4xl mb-4">✨</div>
+                <h3 className="text-xl font-semibold text-gray-800 mb-2">Curated Collections</h3>
+                <p className="text-gray-600">Hand-picked products within each category.</p>
+              </div>
 
-            {/* Benefit Card 3 */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
-              <div className="text-4xl mb-4">🔍</div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">Easy Search</h3>
-              <p className="text-gray-600">Easily refine your search within every category.</p>
+              {/* Benefit Card 3 */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
+                <div className="text-4xl mb-4">🔍</div>
+                <h3 className="text-xl font-semibold text-gray-800 mb-2">Easy Search</h3>
+                <p className="text-gray-600">Easily refine your search within every category.</p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
       </div>
     </>
   );
