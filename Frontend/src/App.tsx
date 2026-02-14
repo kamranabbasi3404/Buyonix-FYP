@@ -30,6 +30,9 @@ import ProductDetail from './pages/ProductDetail';
 import AllChats from './pages/AllChats';
 import Support from './pages/Support';
 import FAQs from './pages/FAQs';
+import Profile from './pages/Profile';
+import MyOrders from './pages/MyOrders';
+import Settings from './pages/Settings';
 import Footer from './components/Footer';
 // import Sidebar from './admin/components/Sidebar.tsx';;
 // import DashboardContent from './admin/components/DashboardContent.tsx';;
@@ -76,6 +79,9 @@ function App() {
             <Route path="/chats" element={<AllChats />} />
             <Route path="/support" element={<Support />} />
             <Route path="/faqs" element={<FAQs />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/orders" element={<MyOrders />} />
+            <Route path="/settings" element={<Settings />} />
             {/* <Route path="/cart" element={<Cart />} /> */}
 
             <Route path="/become-seller" element={<SellerPortal />} />

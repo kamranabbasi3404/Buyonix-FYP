@@ -260,21 +260,50 @@ const Navbar = () => {
                       onClick={() => setShowDropdown(false)}
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
                     >
-                      My Profile
+                      👤 My Profile
                     </Link>
                     <Link
                       to="/orders"
                       onClick={() => setShowDropdown(false)}
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
                     >
-                      My Orders
+                      📦 My Orders
                     </Link>
+                    <Link
+                      to="/wishlist"
+                      onClick={() => setShowDropdown(false)}
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                    >
+                      ❤️ My Wishlist
+                    </Link>
+                    <Link
+                      to="/chats"
+                      onClick={() => setShowDropdown(false)}
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                    >
+                      💬 My Chats
+                    </Link>
+                    <div className="border-t border-gray-200 my-2"></div>
                     <Link
                       to="/settings"
                       onClick={() => setShowDropdown(false)}
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
                     >
-                      Settings
+                      ⚙️ Settings
+                    </Link>
+                    <Link
+                      to="/support"
+                      onClick={() => setShowDropdown(false)}
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                    >
+                      🎧 Customer Support
+                    </Link>
+                    <Link
+                      to="/faqs"
+                      onClick={() => setShowDropdown(false)}
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+                    >
+                      ❓ FAQs
                     </Link>
                     <div className="border-t border-gray-200 my-2"></div>
                     <button
