@@ -60,7 +60,6 @@ const ShoppingCart: React.FC = () => {
           <button
             onClick={() => {
               setIsCartOpen(false);
-              navigate('/');
             }}
             className="w-9 h-9 rounded-lg bg-white/15 hover:bg-white/25 flex items-center justify-center transition-colors"
             aria-label="Close cart"

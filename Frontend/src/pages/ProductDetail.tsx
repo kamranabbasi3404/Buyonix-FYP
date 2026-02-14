@@ -75,6 +75,7 @@ const ProductDetail = () => {
     const [isProcessingOffer, setIsProcessingOffer] = useState(false);
     const [bargainedPrice, setBargainedPrice] = useState<number | null>(null);
     const BARGAINED_PRODUCTS_KEY = 'buyonix_bargained_products';
+    const BARGAIN_LOCK_DAYS = 10; // Lock expires after 10 days
 
     // Check if product was already bargained
     const [isBargainCompleted, setIsBargainCompleted] = useState(false);
@@ -273,10 +274,32 @@ const ProductDetail = () => {
     useEffect(() => {
         if (!product?._id) return;
         try {
-            const bargainedProducts = localStorage.getItem(BARGAINED_PRODUCTS_KEY);
-            if (bargainedProducts) {
-                const productIds = JSON.parse(bargainedProducts);
-                setIsBargainCompleted(productIds.includes(product._id));
+            const stored = localStorage.getItem(BARGAINED_PRODUCTS_KEY);
+            if (stored) {
+                let entries = JSON.parse(stored);
+                const now = Date.now();
+                const expiryMs = BARGAIN_LOCK_DAYS * 24 * 60 * 60 * 1000;
+
+                // Clear old format (plain string array) — this resets all existing locks
+                if (entries.length > 0 && typeof entries[0] === 'string') {
+                    localStorage.removeItem(BARGAINED_PRODUCTS_KEY);
+                    setIsBargainCompleted(false);
+                    return;
+                }
+
+                // Filter out expired entries (older than 10 days)
+                const validEntries = entries.filter(
+                    (e: { productId: string; timestamp: number }) => (now - e.timestamp) < expiryMs
+                );
+
+                // Clean up expired entries from storage
+                if (validEntries.length !== entries.length) {
+                    localStorage.setItem(BARGAINED_PRODUCTS_KEY, JSON.stringify(validEntries));
+                }
+
+                setIsBargainCompleted(
+                    validEntries.some((e: { productId: string }) => e.productId === product._id)
+                );
             }
         } catch (error) {
             console.error('Error checking bargained products:', error);
@@ -313,14 +336,20 @@ const ProductDetail = () => {
     }
 
 
-    // Mark product as bargained
+    // Mark product as bargained (with timestamp for 10-day expiry)
     const markProductAsBargained = (productId: string) => {
         try {
-            const bargainedProducts = localStorage.getItem(BARGAINED_PRODUCTS_KEY);
-            const productIds: string[] = bargainedProducts ? JSON.parse(bargainedProducts) : [];
-            if (!productIds.includes(productId)) {
-                productIds.push(productId);
-                localStorage.setItem(BARGAINED_PRODUCTS_KEY, JSON.stringify(productIds));
+            const stored = localStorage.getItem(BARGAINED_PRODUCTS_KEY);
+            let entries: { productId: string; timestamp: number }[] = stored ? JSON.parse(stored) : [];
+
+            // Migrate old format if needed
+            if (entries.length > 0 && typeof entries[0] === 'string') {
+                entries = (entries as unknown as string[]).map(id => ({ productId: id, timestamp: Date.now() }));
+            }
+
+            if (!entries.some(e => e.productId === productId)) {
+                entries.push({ productId, timestamp: Date.now() });
+                localStorage.setItem(BARGAINED_PRODUCTS_KEY, JSON.stringify(entries));
             }
             setIsBargainCompleted(true);
         } catch (error) {

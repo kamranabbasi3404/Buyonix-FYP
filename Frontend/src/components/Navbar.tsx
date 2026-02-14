@@ -301,20 +301,18 @@ const Navbar = () => {
             </Link>
           )}
 
-          <Link to="/cart" className="relative">
-            <button
-              onClick={() => cartContext?.setIsCartOpen(true)}
-              className="text-gray-700 hover:text-teal-600 transition-colors"
-              aria-label="Shopping cart"
-            >
-              <FaShoppingCart className="text-2xl" />
-              {cartContext && cartContext.cartItems.length > 0 && (
-                <span className="absolute top-0 right-0 transform translate-x-1 -translate-y-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                  {cartContext.cartItems.length}
-                </span>
-              )}
-            </button>
-          </Link>
+          <button
+            onClick={() => cartContext?.setIsCartOpen(true)}
+            className="relative text-gray-700 hover:text-teal-600 transition-colors"
+            aria-label="Shopping cart"
+          >
+            <FaShoppingCart className="text-2xl" />
+            {cartContext && cartContext.cartItems.length > 0 && (
+              <span className="absolute top-0 right-0 transform translate-x-1 -translate-y-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                {cartContext.cartItems.length}
+              </span>
+            )}
+          </button>
         </div>
       </div>
 
