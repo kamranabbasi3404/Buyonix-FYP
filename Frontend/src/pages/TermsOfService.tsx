@@ -1,12 +1,20 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const TermsOfService: React.FC = () => {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header Section */}
       <div className="bg-teal-600 text-white py-12">
         <div className="max-w-4xl mx-auto px-6">
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 text-white/80 hover:text-white mb-4 transition-colors"
+          >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+            Back
+          </button>
           <div className="flex items-start gap-4">
             <div className="flex-shrink-0">
               <div className="flex items-center justify-center h-12 w-12 rounded-md bg-teal-500">

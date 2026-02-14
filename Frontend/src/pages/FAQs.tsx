@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { FaChevronDown, FaChevronUp, FaSearch } from 'react-icons/fa';
+import { Link, useNavigate } from 'react-router-dom';
+import { FaChevronDown, FaChevronUp, FaSearch, FaArrowLeft } from 'react-icons/fa';
 
 interface FAQItem {
     question: string;
@@ -135,6 +135,7 @@ const faqs: FAQItem[] = [
 const categories = ['All', ...Array.from(new Set(faqs.map(f => f.category)))];
 
 const FAQs = () => {
+    const navigate = useNavigate();
     const [openIndex, setOpenIndex] = useState<number | null>(null);
     const [activeCategory, setActiveCategory] = useState('All');
     const [searchQuery, setSearchQuery] = useState('');
@@ -151,22 +152,30 @@ const FAQs = () => {
         <div className="min-h-screen bg-gray-50">
             {/* Hero Header */}
             <section className="bg-gradient-to-r from-teal-600 to-teal-400 py-16">
-                <div className="max-w-4xl mx-auto px-6 text-center">
-                    <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">Frequently Asked Questions</h1>
-                    <p className="text-lg text-teal-50 mb-8">
-                        Find answers to common questions about Buyonix
-                    </p>
+                <div className="max-w-4xl mx-auto px-6">
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="flex items-center gap-2 text-white/80 hover:text-white mb-6 transition-colors"
+                    >
+                        <FaArrowLeft /> Back
+                    </button>
+                    <div className="text-center">
+                        <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">Frequently Asked Questions</h1>
+                        <p className="text-lg text-teal-50 mb-8">
+                            Find answers to common questions about Buyonix
+                        </p>
 
-                    {/* Search */}
-                    <div className="relative max-w-xl mx-auto">
-                        <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                        <input
-                            type="text"
-                            placeholder="Search questions..."
-                            value={searchQuery}
-                            onChange={(e) => { setSearchQuery(e.target.value); setOpenIndex(null); }}
-                            className="w-full pl-11 pr-4 py-3 rounded-xl border-0 shadow-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white/50"
-                        />
+                        {/* Search */}
+                        <div className="relative max-w-xl mx-auto">
+                            <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 z-10" />
+                            <input
+                                type="text"
+                                placeholder="Search questions..."
+                                value={searchQuery}
+                                onChange={(e) => { setSearchQuery(e.target.value); setOpenIndex(null); }}
+                                className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-white/30 bg-white shadow-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white/50"
+                            />
+                        </div>
                     </div>
                 </div>
             </section>
@@ -179,8 +188,8 @@ const FAQs = () => {
                             key={cat}
                             onClick={() => { setActiveCategory(cat); setOpenIndex(null); }}
                             className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${activeCategory === cat
-                                    ? 'bg-teal-600 text-white shadow-md'
-                                    : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                                ? 'bg-teal-600 text-white shadow-md'
+                                : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
                                 }`}
                         >
                             {cat}

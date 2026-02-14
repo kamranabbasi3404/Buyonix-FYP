@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { FaUser, FaEnvelope, FaPhone, FaCalendarAlt, FaShoppingBag, FaHeart, FaComments, FaHeadset, FaEdit } from 'react-icons/fa';
+import { Link, useNavigate } from 'react-router-dom';
+import { FaUser, FaEnvelope, FaPhone, FaCalendarAlt, FaShoppingBag, FaHeart, FaComments, FaHeadset, FaEdit, FaArrowLeft } from 'react-icons/fa';
 
 interface UserInfo {
     id?: string;
@@ -11,6 +11,7 @@ interface UserInfo {
 }
 
 export default function Profile() {
+    const navigate = useNavigate();
     const [user, setUser] = useState<UserInfo | null>(null);
 
     useEffect(() => {
@@ -55,6 +56,13 @@ export default function Profile() {
     return (
         <div className="min-h-screen bg-gray-50 py-10 px-4">
             <div className="max-w-3xl mx-auto">
+                {/* Back Button */}
+                <button
+                    onClick={() => navigate(-1)}
+                    className="flex items-center gap-2 text-gray-600 hover:text-teal-600 mb-4 transition-colors"
+                >
+                    <FaArrowLeft /> Back
+                </button>
                 {/* Header Card */}
                 <div className="bg-gradient-to-br from-teal-600 to-teal-700 rounded-2xl p-8 text-white mb-6 shadow-lg">
                     <div className="flex items-center gap-6">

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { FaBox, FaShoppingBag, FaTruck, FaCheckCircle, FaTimesCircle, FaClock, FaSearch } from 'react-icons/fa';
+import { Link, useNavigate } from 'react-router-dom';
+import { FaBox, FaShoppingBag, FaTruck, FaCheckCircle, FaTimesCircle, FaClock, FaSearch, FaArrowLeft } from 'react-icons/fa';
 
 interface OrderItem {
     _id: string;
@@ -41,6 +41,7 @@ const statusConfig: Record<string, { icon: React.ReactNode; color: string; bg: s
 };
 
 export default function MyOrders() {
+    const navigate = useNavigate();
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState('all');
@@ -103,6 +104,12 @@ export default function MyOrders() {
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="mb-8">
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="flex items-center gap-2 text-gray-600 hover:text-teal-600 mb-3 transition-colors"
+                    >
+                        <FaArrowLeft /> Back
+                    </button>
                     <h1 className="text-3xl font-bold text-gray-900">My Orders</h1>
                     <p className="text-gray-500 mt-1">Track and manage your orders</p>
                 </div>
