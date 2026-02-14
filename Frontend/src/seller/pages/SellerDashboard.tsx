@@ -126,6 +126,14 @@ const SellerDashboard = () => {
               <span className="text-xl">💬</span>
               <span>Chats</span>
             </Link>
+
+            <Link
+              to="/seller-support"
+              className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg"
+            >
+              <span className="text-xl">🎫</span>
+              <span>Support</span>
+            </Link>
           </div>
         </nav>
 

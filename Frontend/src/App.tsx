@@ -13,6 +13,7 @@ import SellerOrders from './seller/pages/SellerOrders.tsx';
 import SellerAnalytics from './seller/pages/SellerAnalytics.tsx';
 import SellerPayouts from './seller/pages/SellerPayouts.tsx';
 import SellerChats from './seller/pages/SellerChats.tsx';
+import SellerSupport from './seller/pages/SellerSupport.tsx';
 import About from './pages/About.tsx';
 import Home from './pages/Home.tsx';
 import Shop from './pages/Shop';
@@ -26,6 +27,7 @@ import BuyNow from './pages/BuyNow';
 import OrderConfirmation from './pages/OrderConfirmation';
 import ProductDetail from './pages/ProductDetail';
 import AllChats from './pages/AllChats';
+import Support from './pages/Support';
 import Footer from './components/Footer';
 // import Sidebar from './admin/components/Sidebar.tsx';;
 // import DashboardContent from './admin/components/DashboardContent.tsx';;
@@ -69,6 +71,7 @@ function App() {
             <Route path="/order-confirmation" element={<OrderConfirmation />} />
             <Route path="/product/:productId" element={<ProductDetail />} />
             <Route path="/chats" element={<AllChats />} />
+            <Route path="/support" element={<Support />} />
             {/* <Route path="/cart" element={<Cart />} /> */}
 
             <Route path="/become-seller" element={<SellerPortal />} />
@@ -80,6 +83,7 @@ function App() {
             <Route path="/seller-analytics" element={<SellerAnalytics />} />
             <Route path="/seller-payouts" element={<SellerPayouts />} />
             <Route path="/seller-chats" element={<SellerChats />} />
+            <Route path="/seller-support" element={<SellerSupport />} />
 
 
           </Routes>

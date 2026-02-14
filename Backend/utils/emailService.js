@@ -653,5 +653,99 @@ const sendChatNotificationEmail = async (recipientEmail, recipientName, senderNa
   }
 };
 
-module.exports = { sendOTPEmail, sendSellerApprovalEmail, sendOrderConfirmationEmail, sendChatNotificationEmail };
+const sendSupportReplyEmail = async (recipientEmail, recipientName, ticketId, subject, replyText, viewUrl) => {
+  try {
+    if (!hasEmailConfig) {
+      console.log('\n' + '='.repeat(60));
+      console.log('📧 SUPPORT REPLY NOTIFICATION (Email service not configured)');
+      console.log('='.repeat(60));
+      console.log(`To: ${recipientEmail}`);
+      console.log(`Subject: Reply on Ticket ${ticketId} - ${subject}`);
+      console.log(`\nHello ${recipientName},`);
+      console.log(`\nYou have a new reply on your support ticket ${ticketId}:`);
+      console.log(`"${replyText}"`);
+      console.log(`\nView your ticket: ${viewUrl}`);
+      console.log('='.repeat(60) + '\n');
+      return { success: true, messageId: 'console-log' };
+    }
+
+    const mailOptions = {
+      from: `"Buyonix Support" <${process.env.EMAIL_USER}>`,
+      to: recipientEmail,
+      subject: `Reply on Ticket ${ticketId} — ${subject}`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9; }
+            .header { background-color: #14b8a6; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+            .content { background-color: white; padding: 30px; border-radius: 0 0 8px 8px; }
+            .ticket-info { background-color: #f0fdf4; border-left: 4px solid #14b8a6; padding: 15px; margin: 20px 0; border-radius: 4px; }
+            .reply-box { background-color: #f0f9ff; border-left: 4px solid #0ea5e9; padding: 15px; margin: 20px 0; border-radius: 4px; }
+            .cta-button { display: inline-block; background-color: #14b8a6; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; font-weight: bold; }
+            .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>🎫 Support Ticket Update</h1>
+            </div>
+            <div class="content">
+              <p>Hello ${recipientName},</p>
+
+              <div class="ticket-info">
+                <p style="margin: 0; font-weight: bold; color: #14b8a6;">Ticket: ${ticketId}</p>
+                <p style="margin: 5px 0 0 0; color: #555;">${subject}</p>
+              </div>
+
+              <p>You have received a new reply on your support ticket:</p>
+
+              <div class="reply-box">
+                <p style="margin: 0; font-style: italic; color: #555;">"${replyText}"</p>
+              </div>
+
+              <p style="text-align: center;">
+                <a href="${viewUrl}" class="cta-button">View Ticket</a>
+              </p>
+
+              <p>If you have further questions, simply reply through the ticket page.</p>
+
+              <p>Best regards,<br><strong>The Buyonix Support Team</strong></p>
+            </div>
+            <div class="footer">
+              <p>This is an automated email. Please do not reply directly.</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `,
+      text: `
+        Support Ticket Update — ${ticketId}
+
+        Hello ${recipientName},
+
+        You have a new reply on your support ticket "${subject}":
+
+        "${replyText}"
+
+        View your ticket: ${viewUrl}
+
+        Best regards,
+        The Buyonix Support Team
+      `,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Support reply notification email sent:', info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error('Error sending support reply email:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+module.exports = { sendOTPEmail, sendSellerApprovalEmail, sendOrderConfirmationEmail, sendChatNotificationEmail, sendSupportReplyEmail };
 
