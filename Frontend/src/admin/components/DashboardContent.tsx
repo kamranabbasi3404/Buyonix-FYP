@@ -61,8 +61,8 @@ const DashboardContent: React.FC = () => {
         // Products
         if (productsRes.status === 'fulfilled' && productsRes.value.ok) {
           const data = await productsRes.value.json();
-          const prods = data.products || [];
-          setTotalProducts(Array.isArray(prods) ? prods.length : 0);
+          // Use pagination.totalProducts for accurate count (API paginates, default limit=10)
+          setTotalProducts(data.pagination?.totalProducts ?? (Array.isArray(data.products) ? data.products.length : 0));
         }
 
         // Support Tickets
