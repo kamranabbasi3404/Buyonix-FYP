@@ -1,4 +1,5 @@
 import { Routes, Route, useLocation } from 'react-router-dom';
+import ScrollToTop from './components/ScrollToTop';
 import Navbar from './components/Navbar';
 import SignUp from './components/SignUp';
 import Login from './components/Login';
@@ -28,6 +29,7 @@ import OrderConfirmation from './pages/OrderConfirmation';
 import ProductDetail from './pages/ProductDetail';
 import AllChats from './pages/AllChats';
 import Support from './pages/Support';
+import FAQs from './pages/FAQs';
 import Footer from './components/Footer';
 // import Sidebar from './admin/components/Sidebar.tsx';;
 // import DashboardContent from './admin/components/DashboardContent.tsx';;
@@ -50,6 +52,7 @@ function App() {
 
   return (
     <CartProvider>
+      <ScrollToTop />
       <div className="min-h-screen bg-gray-50">
         {!isSellerRoute && <Navbar />}
         <div className={!isSellerRoute ? "pt-20" : ""}>
@@ -72,6 +75,7 @@ function App() {
             <Route path="/product/:productId" element={<ProductDetail />} />
             <Route path="/chats" element={<AllChats />} />
             <Route path="/support" element={<Support />} />
+            <Route path="/faqs" element={<FAQs />} />
             {/* <Route path="/cart" element={<Cart />} /> */}
 
             <Route path="/become-seller" element={<SellerPortal />} />

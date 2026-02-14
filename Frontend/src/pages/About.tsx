@@ -181,7 +181,7 @@ const About = () => {
           {/* Leader 1 */}
           <div className="bg-white rounded-lg shadow-md p-8 text-center">
             <div className="w-24 h-24 rounded-full bg-teal-100 flex items-center justify-center mx-auto mb-4">
-              <span className="text-3xl font-bold text-teal-600">SJ</span>
+              <span className="text-3xl font-bold text-teal-600">MF</span>
             </div>
             <h3 className="text-xl font-bold text-gray-800 mb-2">Muhammad Faisal</h3>
             <p className="text-gray-600">CEO & Founder</p>
@@ -190,7 +190,7 @@ const About = () => {
           {/* Leader 2 */}
           <div className="bg-white rounded-lg shadow-md p-8 text-center">
             <div className="w-24 h-24 rounded-full bg-teal-100 flex items-center justify-center mx-auto mb-4">
-              <span className="text-3xl font-bold text-teal-600">MC</span>
+              <span className="text-3xl font-bold text-teal-600">AH</span>
             </div>
             <h3 className="text-xl font-bold text-gray-800 mb-2">Abdul Hadi</h3>
             <p className="text-gray-600">CTO</p>
@@ -199,7 +199,7 @@ const About = () => {
           {/* Leader 3 */}
           <div className="bg-white rounded-lg shadow-md p-8 text-center">
             <div className="w-24 h-24 rounded-full bg-teal-100 flex items-center justify-center mx-auto mb-4">
-              <span className="text-3xl font-bold text-teal-600">AR</span>
+              <span className="text-3xl font-bold text-teal-600">KA</span>
             </div>
             <h3 className="text-xl font-bold text-gray-800 mb-2">Kamran Ali Abbasi</h3>
             <p className="text-gray-600">Head of AI</p>

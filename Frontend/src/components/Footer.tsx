@@ -64,7 +64,7 @@ export default function Footer() {
             <li><a href="#" className="hover:text-white">Track Order</a></li>
             <li><a href="#" className="hover:text-white">Returns & Refunds</a></li>
             <li><a href="#" className="hover:text-white">Shipping Info</a></li>
-            <li><a href="#" className="hover:text-white">FAQs</a></li>
+            <li><a href="/faqs" className="hover:text-white">FAQs</a></li>
           </ul>
         </div>
 
