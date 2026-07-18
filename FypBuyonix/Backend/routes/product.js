@@ -7,6 +7,7 @@ const CFRecommender = require('../utils/cfRecommender');
 const VisualSearchHelper = require('../utils/visualSearchHelper');
 const fs = require('fs');
 const path = require('path');
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 // Initialize CF recommender
 const cfRecommender = new CFRecommender();
@@ -30,21 +31,51 @@ router.get("/", async (req, res) => {
 
         // Build filter — add text search when query is provided
         const filter = { status: 'active' };
+        let matchedProductIds = null;
+
         if (search) {
-            filter.$or = [
-                { name: { $regex: search, $options: 'i' } },
-                { description: { $regex: search, $options: 'i' } },
-                { category: { $regex: search, $options: 'i' } }
-            ];
+            try {
+                const response = await fetch(
+                    `http://127.0.0.1:8000/search?q=${encodeURIComponent(search)}&limit=100`
+                );
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && Array.isArray(data.results)) {
+                        matchedProductIds = data.results.map(r => r.id);
+                        console.log(`🤖 AI Semantic Search matched ${matchedProductIds.length} products for "${search}"`);
+                    }
+                }
+            } catch (pythonError) {
+                console.warn("Python AI Search server offline or error, falling back to regex:", pythonError.message);
+            }
+
+            if (matchedProductIds && matchedProductIds.length > 0) {
+                filter._id = { $in: matchedProductIds };
+            } else if (matchedProductIds && matchedProductIds.length === 0) {
+                filter._id = { $in: [] };
+            } else {
+                const searchRegex = new RegExp(search, 'i');
+                filter.$or = [
+                    { name: searchRegex },
+                    { description: searchRegex },
+                    { category: searchRegex }
+                ];
+            }
         }
 
         const skip = (page - 1) * limit;
         const totalProducts = await Product.countDocuments(filter);
-        const products = await Product.find(filter)
+        let products = await Product.find(filter)
             .populate('sellerId', 'storeName businessName')
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit);
+
+        if (search && matchedProductIds && matchedProductIds.length > 0) {
+            products = products.sort((a, b) => {
+                return matchedProductIds.indexOf(a._id.toString()) - matchedProductIds.indexOf(b._id.toString());
+            });
+        }
 
         const totalPages = Math.ceil(totalProducts / limit);
 

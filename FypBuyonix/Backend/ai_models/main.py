@@ -5,6 +5,22 @@ import os
 import base64
 import io
 
+# Load .env variables from parent directory if they exist
+try:
+    dotenv_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".env"))
+    if os.path.exists(dotenv_path):
+        with open(dotenv_path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    key, val = line.split("=", 1)
+                    key = key.strip()
+                    val = val.strip().strip('"').strip("'")
+                    os.environ[key] = val
+        print(f"✅ Loaded environment variables from {dotenv_path}")
+except Exception as dotenv_err:
+    print(f"⚠️ Failed to parse parent .env: {dotenv_err}")
+
 app = FastAPI()
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 
@@ -34,8 +50,8 @@ async def fetch_mongo_interactions():
         return []
     try:
         from motor.motor_asyncio import AsyncIOMotorClient
-        client = AsyncIOMotorClient(mongo_uri, serverSelectionTimeoutMS=8000)
-        db = client.get_default_database()
+        client = AsyncIOMotorClient(mongo_uri, serverSelectionTimeoutMS=8000, tlsAllowInvalidCertificates=True)
+        db = client.get_default_database(default="test")
         cursor = db["interactions"].find({}, {"userId": 1, "productId": 1, "rating": 1, "weight": 1})
         interactions = []
         async for doc in cursor:
@@ -268,3 +284,135 @@ async def visual_search(file: UploadFile = File(...)):
         return {"results": [], "message": "Visual search processing"}
     except Exception as e:
         return {"results": [], "error": str(e)}
+
+
+@app.get("/search")
+async def semantic_search(q: str, limit: int = 20):
+    try:
+        if not q:
+            return {"results": []}
+
+        # 1. Fetch all active products
+        mongo_uri = os.environ.get("MONGO_URI", "")
+        if not mongo_uri:
+            return {"results": [], "error": "MONGO_URI not set"}
+
+        from motor.motor_asyncio import AsyncIOMotorClient
+        client = AsyncIOMotorClient(mongo_uri, serverSelectionTimeoutMS=8000, tlsAllowInvalidCertificates=True)
+        db = client.get_default_database(default="test")
+        cursor = db["products"].find({"status": "active"}, {"_id": 1, "name": 1, "category": 1, "description": 1})
+
+        products = []
+        async for doc in cursor:
+            products.append({
+                "id": str(doc["_id"]),
+                "name": doc.get("name") or "",
+                "category": doc.get("category") or "",
+                "description": doc.get("description") or "",
+            })
+        client.close()
+
+        if not products:
+            return {"results": []}
+
+        # 2. Build Vocabulary, Stemmer and Spelling Corrector
+        import re
+        from collections import Counter
+
+        COMMON_WORDS = {"wear", "clothing", "shoes", "pants", "shirt", "kids", "children", "baby", "men", "women", "electronic", "phone", "laptop", "bag", "sport", "toy", "book"}
+
+        def stem(word):
+            word = word.lower()
+            if word.endswith("ren's") or word.endswith("rens") or word.endswith("ren"):
+                return "child"
+            if word.endswith("s") and not word.endswith("ss"):
+                word = word[:-1]
+            if word.endswith("es"):
+                word = word[:-2]
+            if word.endswith("ing"):
+                word = word[:-3]
+            return word
+
+        def tokenize(text):
+            raw_tokens = re.findall(r'[a-z0-9]+', text.lower())
+            return [stem(t) for t in raw_tokens]
+
+        vocabulary = []
+        for p in products:
+            vocabulary.extend(tokenize(p["name"]))
+            vocabulary.extend(tokenize(p["category"]))
+
+        words_counter = Counter(vocabulary)
+
+        def edit_distance_1(word):
+            letters = 'abcdefghijklmnopqrstuvwxyz0123456789'
+            splits = [(word[:i], word[i:]) for i in range(len(word) + 1)]
+            deletes = [L + R[1:] for L, R in splits if R]
+            transposes = [L + R[1] + R[0] + R[2:] for L, R in splits if len(R) > 1]
+            replaces = [L + c + R[1:] for L, R in splits if R for c in letters]
+            inserts = [L + c + R for L, R in splits for c in letters]
+            return set(deletes + transposes + replaces + inserts)
+
+        def correct_word(word):
+            word = word.lower()
+            stemmed = stem(word)
+            if word in words_counter or stemmed in words_counter or word in COMMON_WORDS or not word.isalnum():
+                return word
+            candidates = set(w for w in edit_distance_1(word) if w in words_counter)
+            if candidates:
+                return max(candidates, key=lambda w: words_counter[w])
+            candidates_2 = set(w2 for w1 in edit_distance_1(word) for w2 in edit_distance_1(w1) if w2 in words_counter)
+            if candidates_2:
+                return max(candidates_2, key=lambda w: words_counter[w])
+            return word
+
+        # Correct query terms and tokenize
+        raw_query_terms = re.findall(r'[a-z0-9]+', q.lower())
+        corrected_terms = []
+        for term in raw_query_terms:
+            corrected = correct_word(term)
+            corrected_terms.append(stem(corrected))
+            if stem(term) != stem(corrected):
+                corrected_terms.append(stem(term))
+
+        query_tokens = list(dict.fromkeys(corrected_terms))
+        corrected_query = " ".join(query_tokens)
+        print(f"🔎 AI Search Input: '{q}' -> Stemmed Expanded Query: '{corrected_query}'")
+
+        # 3. TF-IDF Semantic Search using Scikit-Learn
+        from sklearn.feature_extraction.text import TfidfVectorizer
+        from sklearn.metrics.pairwise import cosine_similarity
+
+        docs = []
+        for p in products:
+            name_stemmed = " ".join(tokenize(p['name']))
+            category_stemmed = " ".join(tokenize(p['category']))
+            desc_stemmed = " ".join(tokenize(p['description']))
+            doc_text = f"{name_stemmed} {name_stemmed} {category_stemmed} {desc_stemmed}"
+            docs.append(doc_text)
+
+        vectorizer = TfidfVectorizer(stop_words='english')
+        tfidf_matrix = vectorizer.fit_transform(docs)
+        query_vec = vectorizer.transform([corrected_query])
+
+        similarities = cosine_similarity(query_vec, tfidf_matrix).flatten()
+
+        results = []
+        for p, score in zip(products, similarities):
+            if score > 0.01:
+                results.append({
+                    "id": p["id"],
+                    "score": float(score)
+                })
+
+        results.sort(key=lambda x: x["score"], reverse=True)
+
+        return {
+            "success": True,
+            "corrected_query": corrected_query,
+            "results": results[:limit]
+        }
+
+    except Exception as e:
+        print(f"❌ AI Semantic Search Error: {e}")
+        return {"success": False, "error": str(e)}
