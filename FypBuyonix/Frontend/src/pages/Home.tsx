@@ -38,6 +38,37 @@ const Home = () => {
   const [pagination, setPagination] = useState<PaginationInfo | null>(null);
   const initialLoadDone = useRef(false);
 
+  // Hero Slider states & content config
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const slides = [
+    {
+      image: '/src/assets/hero.png',
+      tag: '🎉 Welcome to Buyonix',
+      heading: 'Discover Amazing Deals on Everything You Love',
+      subheading: 'Shop with confidence using AI-powered features: Visual Search, Smart Bargaining, and personalized recommendations tailored just for you.',
+    },
+    {
+      image: '/src/assets/sale_banner_1.png',
+      tag: '🔥 Mega Accessories Sale',
+      heading: 'Up To 50% OFF On Accessories & Cables',
+      subheading: 'Grab premium C-type cables, phone cases, and fast chargers at discounted rates. Limited stocks only!',
+    },
+    {
+      image: '/src/assets/sale_banner_2.png',
+      tag: '🎧 Premium Audio & Wearables',
+      heading: 'Next-Gen Audio & Smart Watches',
+      subheading: 'Experience superior acoustic precision and smart fitness tracking with our top-rated collections.',
+    }
+  ];
+
+  // Auto-play timer for slide rotation
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [slides.length]);
+
   // Check if user needs to be redirected after login (for Google OAuth)
   useEffect(() => {
     const redirectPath = localStorage.getItem('redirectAfterLogin');
@@ -215,41 +246,59 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
       {/* Hero Section */}
-      <div className="relative w-full bg-black -mt-20 pt-36 pb-20 sm:pb-28">
-        <div
-          className="absolute inset-0 bg-cover bg-center opacity-70"
-          style={{
-            backgroundImage: "url('/src/assets/hero.png')",
-          }}
-        ></div>
+      <div className="relative w-full bg-black -mt-20 pt-36 pb-20 sm:pb-28 overflow-hidden min-h-[480px] sm:min-h-[520px] flex items-center">
+        {/* Background Slides with Cross-Fade */}
+        {slides.map((slide, index) => (
+          <div
+            key={index}
+            className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out ${
+              index === currentSlide ? 'opacity-70' : 'opacity-0'
+            }`}
+            style={{
+              backgroundImage: `url('${slide.image}')`,
+            }}
+          ></div>
+        ))}
 
-        <div className="relative z-10 max-w-4xl mx-auto px-6 flex flex-col justify-center text-white">
-          <span className="px-4 py-1 bg-white text-black rounded-full w-fit mb-4 font-medium">
-            🎉 Welcome to Buyonix
+        <div className="relative z-10 max-w-4xl mx-auto px-6 w-full flex flex-col justify-center text-white">
+          <span className="px-4 py-1 bg-teal-500 text-white rounded-full w-fit mb-4 font-medium text-xs sm:text-sm">
+            {slides[currentSlide].tag}
           </span>
 
-          <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
-            Discover Amazing <br /> Deals on Everything <br /> You Love
+          <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold leading-tight mb-4 sm:mb-6 min-h-[72px] sm:min-h-[144px]">
+            {slides[currentSlide].heading}
           </h1>
 
-          <p className="text-lg md:text-xl text-gray-200 max-w-2xl">
-            Shop with confidence using AI-powered features: Visual Search,
-            Smart Bargaining, and personalized recommendations tailored just for you.
+          <p className="text-sm sm:text-base md:text-lg text-gray-200 max-w-2xl min-h-[60px] sm:min-h-[80px]">
+            {slides[currentSlide].subheading}
           </p>
 
-          <div className="mt-6 flex gap-4">
+          <div className="mt-4 sm:mt-6 flex gap-4">
             <Link to="/shop">
-              <button className="px-6 py-3 bg-teal-500 text-white rounded-lg font-medium hover:bg-teal-600">
+              <button className="px-5 py-2.5 sm:px-6 sm:py-3 bg-teal-500 text-white rounded-lg font-medium hover:bg-teal-600 transition-colors shadow-md shadow-teal-500/20 text-xs sm:text-sm">
                 Shop Now
-
               </button>
             </Link>
             <Link to="/about">
-              <button className="px-6 py-3 border border-white text-white rounded-lg font-medium hover:bg-white hover:text-black">
+              <button className="px-5 py-2.5 sm:px-6 sm:py-3 border border-white text-white rounded-lg font-medium hover:bg-white hover:text-black transition-colors text-xs sm:text-sm">
                 Explore Features
               </button>
             </Link>
           </div>
+        </div>
+
+        {/* Carousel Indicators/Dots */}
+        <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-20">
+          {slides.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentSlide(index)}
+              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                index === currentSlide ? 'bg-teal-500 w-8' : 'bg-gray-400/50 hover:bg-gray-300'
+              }`}
+              aria-label={`Go to slide ${index + 1}`}
+            />
+          ))}
         </div>
       </div>
 
