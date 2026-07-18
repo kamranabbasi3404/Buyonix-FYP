@@ -95,7 +95,7 @@ const Shop: React.FC = () => {
       }
 
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/product?page=${page}&limit=20`,
+        `${import.meta.env.VITE_API_URL}/product?page=${page}&limit=200`,
         { credentials: 'include' }
       );
 
