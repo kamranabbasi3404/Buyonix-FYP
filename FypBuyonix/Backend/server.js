@@ -69,7 +69,12 @@ mongoose.connect(process.env.DB_URI).then(() => {
 app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
-app.use(mongoSanitize());
+app.use((req, res, next) => {
+    if (req.body) mongoSanitize.sanitize(req.body);
+    if (req.params) mongoSanitize.sanitize(req.params);
+    if (req.query) mongoSanitize.sanitize(req.query);
+    next();
+});
 
 const globalRateLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
