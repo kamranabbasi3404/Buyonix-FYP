@@ -86,8 +86,8 @@ FypBuyonix/
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/kamranabbasi3404/Ecommerce-Buyonix.git
-   cd Ecommerce-Buyonix/FypBuyonix
+   git clone https://github.com/kamranabbasi3404/Buyonix-FYP.git
+   cd Buyonix-FYP/FypBuyonix
    ```
 
 2. **Backend Setup**
