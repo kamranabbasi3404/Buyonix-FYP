@@ -132,3 +132,8 @@ npm test
 ## 📄 License
 
 This project is developed as a Final Year Project (FYP) for academic purposes.
+
+## 🤖 AI Support Chatbot Features
+- **Agentic RAG Framework:** Powered by Google Gemini Function Calling (Tool Use) for dynamic product lookups.
+- **Smart Product Queries:** Integrates custom prepositions and Roman Urdu/Hinglish filters to ensure clean search queries.
+- **Dynamic Routing Links:** Generates native SPA links in the chatbot window to let users view items instantly.
