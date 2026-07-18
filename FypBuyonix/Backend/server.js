@@ -8,6 +8,11 @@ const express = require("express");
 const mongoose = require("mongoose");
 const http = require("http");
 const { Server } = require("socket.io");
+const helmet = require("helmet");
+const mongoSanitize = require("express-mongo-sanitize");
+const rateLimit = require("express-rate-limit");
+const crypto = require("crypto");
+
 const app = express();
 const cors = require("cors");
 const passport = require("passport");
@@ -21,7 +26,12 @@ const { Message, Conversation } = require("./models/chat");
 // Environment variables
 const PORT = process.env.PORT || 5000;
 const NODE_ENV = process.env.NODE_ENV || "development";
-const SESSION_SECRET = process.env.SESSION_SECRET || "cyberwolve";
+
+// Secure fallback secret generation if missing from .env
+if (!process.env.SESSION_SECRET) {
+    console.warn("⚠️ SECURITY WARNING: SESSION_SECRET is not configured in .env. Generating a dynamic cryptographically secure secret key.");
+}
+const SESSION_SECRET = process.env.SESSION_SECRET || crypto.randomBytes(64).toString("hex");
 
 // CORS origins - support both development and production
 const ALLOWED_ORIGINS = [
@@ -52,6 +62,21 @@ mongoose.connect(process.env.DB_URI).then(() => {
     console.error("✗ MongoDB connection error:", err.message);
     process.exit(1);
 });
+
+// ✅ Security Hardening Middlewares
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
+app.use(mongoSanitize());
+
+const globalRateLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 500, // limit each IP to 500 requests per 15 minutes
+    message: { success: false, message: "Too many requests. Please try again after 15 minutes." },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+app.use(globalRateLimiter);
 
 // ✅ 1. Trust proxy (required for Azure HTTPS detection)
 app.set('trust proxy', 1);

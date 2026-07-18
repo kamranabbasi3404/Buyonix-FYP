@@ -4,6 +4,18 @@ const User = require('../models/user');
 const OTP = require('../models/otp');
 const bcrypt = require('bcryptjs');
 const { sendOTPEmail } = require('../utils/emailService');
+const rateLimit = require("express-rate-limit");
+
+const authRateLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 15, // limit each IP to 15 authentication requests per 15 minutes
+    message: {
+        success: false,
+        message: "Too many authentication requests from this IP. Please try again after 15 minutes."
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
 
 // Google Auth Routes
 router.get("/google", passport.authenticate("google", {
@@ -77,7 +89,7 @@ router.get("/login/failed", (req, res) => {
 });
 
 // Send OTP for Signup
-router.post("/send-signup-otp", async (req, res) => {
+router.post("/send-signup-otp", authRateLimiter, async (req, res) => {
     try {
         const { email } = req.body;
 
@@ -139,7 +151,7 @@ router.post("/send-signup-otp", async (req, res) => {
 });
 
 // Verify OTP and Complete Signup
-router.post("/verify-signup-otp", async (req, res) => {
+router.post("/verify-signup-otp", authRateLimiter, async (req, res) => {
     try {
         const { fullName, email, phone, password, otp } = req.body;
 
@@ -233,7 +245,7 @@ router.post("/verify-signup-otp", async (req, res) => {
 });
 
 // Send OTP for Login
-router.post("/send-login-otp", async (req, res) => {
+router.post("/send-login-otp", authRateLimiter, async (req, res) => {
     try {
         const { email, password } = req.body;
 
@@ -312,7 +324,7 @@ router.post("/send-login-otp", async (req, res) => {
 });
 
 // Verify OTP and Complete Login
-router.post("/verify-login-otp", async (req, res) => {
+router.post("/verify-login-otp", authRateLimiter, async (req, res) => {
     try {
         const { email, otp } = req.body;
 
