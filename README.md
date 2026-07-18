@@ -8,6 +8,7 @@
 
 ### 🛍️ Buyer Experience
 - **Product Browsing** — Shop, Categories, Deals, and detailed product pages
+- **AI Semantic Search** — Real-time AI search utilizing local token TF-IDF cosine similarity, Peter Norvig spelling corrections (e.g. searching `"sliper"` finds `"slipper"`), and suffix-based stemming (e.g. searching `"child wear"` matches `"Childrens slippers"`).
 - **AI Chatbot (Agentic RAG)** — Powered by Google Gemini Function Calling (Tool Use) for real-time product/stock lookups, featuring bilingual support (English & Roman Urdu), custom Hinglish noise filters, and native SPA routing link generation.
 - **Visual Search** — Upload an image to find visually similar products using deep learning
 - **Smart Recommendations** — Collaborative filtering-based personalized product suggestions
@@ -37,7 +38,7 @@
 |-------|-----------|
 | **Frontend** | React 19, TypeScript, Vite, TailwindCSS |
 | **Backend** | Node.js, Express 5, MongoDB (Mongoose) |
-| **AI / ML** | Google Gemini AI, Python (Collaborative Filtering, Visual Search) |
+| **AI / ML** | Google Gemini AI, Python (FastAPI Semantic Search, Collaborative Filtering, Visual Search) |
 | **Payments** | Stripe |
 | **Auth** | bcryptjs, Google OAuth 2.0 (Passport.js), OTP via Nodemailer |
 | **Real-Time** | Socket.io |
