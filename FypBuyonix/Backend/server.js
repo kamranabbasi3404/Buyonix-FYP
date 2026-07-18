@@ -12,8 +12,10 @@ const helmet = require("helmet");
 const mongoSanitize = require("express-mongo-sanitize");
 const rateLimit = require("express-rate-limit");
 const crypto = require("crypto");
+const compression = require("compression");
 
 const app = express();
+app.use(compression());
 const cors = require("cors");
 const passport = require("passport");
 const session = require("express-session");

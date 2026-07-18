@@ -101,6 +101,11 @@ const productSchema = new Schema({
     }
 });
 
+// Define composite and single indexes for performance optimization
+productSchema.index({ status: 1, name: 1 });
+productSchema.index({ status: 1, category: 1 });
+productSchema.index({ status: 1, createdAt: -1 });
+
 // Update the updatedAt field before saving
 productSchema.pre('save', function (next) {
     this.updatedAt = Date.now();
