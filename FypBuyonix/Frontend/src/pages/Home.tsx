@@ -3,6 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { CartContext } from '../context/CartContextType';
 import Chatbot from '../components/Chatbot';
 import Recommendations from '../components/Recommendations';
+import heroImg from '../assets/hero.png';
+import saleBanner1 from '../assets/sale_banner_1.png';
+import saleBanner2 from '../assets/sale_banner_2.png';
 
 interface Product {
   _id: string;
@@ -42,19 +45,19 @@ const Home = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const slides = [
     {
-      image: '/src/assets/hero.png',
+      image: heroImg,
       tag: '🎉 Welcome to Buyonix',
       heading: 'Discover Amazing Deals on Everything You Love',
       subheading: 'Shop with confidence using AI-powered features: Visual Search, Smart Bargaining, and personalized recommendations tailored just for you.',
     },
     {
-      image: '/src/assets/sale_banner_1.png',
+      image: saleBanner1,
       tag: '🔥 Mega Accessories Sale',
       heading: 'Up To 50% OFF On Accessories & Cables',
       subheading: 'Grab premium C-type cables, phone cases, and fast chargers at discounted rates. Limited stocks only!',
     },
     {
-      image: '/src/assets/sale_banner_2.png',
+      image: saleBanner2,
       tag: '🎧 Premium Audio & Wearables',
       heading: 'Next-Gen Audio & Smart Watches',
       subheading: 'Experience superior acoustic precision and smart fitness tracking with our top-rated collections.',
