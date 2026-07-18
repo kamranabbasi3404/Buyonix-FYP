@@ -1,6 +1,6 @@
 # 🛒 Buyonix — AI-Powered E-Commerce Platform
 
-**Buyonix** is a full-stack e-commerce platform built as a Final Year Project (FYP). It features an AI-powered chatbot, visual product search, collaborative filtering recommendations, real-time chat, price bargaining, and multi-role dashboards for buyers, sellers, and admins.
+**Buyonix** is a AI Powered e-commerce platform built as a Final Year Project (FYP). It features an AI-powered chatbot, visual product search, collaborative filtering recommendations, real-time chat, price bargaining, and multi-role dashboards for buyers, sellers, and admins.
 
 ---
 
