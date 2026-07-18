@@ -8,7 +8,7 @@
 
 ### 🛍️ Buyer Experience
 - **Product Browsing** — Shop, Categories, Deals, and detailed product pages
-- **AI Chatbot** — Intelligent assistant powered by Google Gemini AI with bilingual support (English & Roman Urdu)
+- **AI Chatbot (Agentic RAG)** — Powered by Google Gemini Function Calling (Tool Use) for real-time product/stock lookups, featuring bilingual support (English & Roman Urdu), custom Hinglish noise filters, and native SPA routing link generation.
 - **Visual Search** — Upload an image to find visually similar products using deep learning
 - **Smart Recommendations** — Collaborative filtering-based personalized product suggestions
 - **Shopping Cart & Wishlist** — Full cart management with wishlist support
@@ -132,8 +132,3 @@ npm test
 ## 📄 License
 
 This project is developed as a Final Year Project (FYP) for academic purposes.
-
-## 🤖 AI Support Chatbot Features
-- **Agentic RAG Framework:** Powered by Google Gemini Function Calling (Tool Use) for dynamic product lookups.
-- **Smart Product Queries:** Integrates custom prepositions and Roman Urdu/Hinglish filters to ensure clean search queries.
-- **Dynamic Routing Links:** Generates native SPA links in the chatbot window to let users view items instantly.
