@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+/* ===== Stripe Payment Form Fixes ===== */
+
+/* Ensure Stripe payment element iframes are visible and interactive */
+.StripeElement,
+.__StripeElement,
+[class*="StripeElement"] {
+  min-height: 20px !important;
+  width: 100% !important;
+}
+
+.StripeElement iframe,
+.__StripeElement iframe,
+[class*="StripeElement"] iframe {
+  height: 100% !important;
+  min-height: 20px !important;
+  width: 100% !important;
+  pointer-events: auto !important;
+  display: block !important;
+  opacity: 1 !important;
+  position: relative !important;
+}
+
+/* Only hide the Stripe powered-by badge that floats on the page */
+.powered-by-stripe,
+[class*="powered-by"] {
+  display: none !important;
+}
